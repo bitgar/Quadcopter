@@ -1,0 +1,177 @@
+function [sys,x0,str,ts,simStateCompliance] = PlantDynamicsTowards(t,x,input,flag,mass,g,x1,x2,y1,y2,zr,rho,fb,kf,km,kd,Ix,Iy,Iz,Ixz)
+switch flag
+
+  %%%%%%%%%%%%%%%%%%
+  % Initialization %
+  %%%%%%%%%%%%%%%%%%
+  case 0
+    [sys,x0,str,ts,simStateCompliance]=mdlInitializeSizes;
+
+  %%%%%%%%%%
+  % Update %
+  %%%%%%%%%%
+  case 2
+    sys = [];
+
+  %%%%%%%%%%%
+  % Outputs %
+  %%%%%%%%%%%
+  case 3
+    sys=mdlOutputs(t,x,input,mass,g,x1,x2,y1,y2,zr,rho,fb,kf,km,kd,Ix,Iy,Iz,Ixz);
+
+  %%%%%%%%%%%%%
+  % Terminate %
+  %%%%%%%%%%%%%
+  case 9
+    sys = [];
+
+  %%%%%%%%%%%%%%%%%%%%
+  % Unexpected flags %
+  %%%%%%%%%%%%%%%%%%%%
+  
+  otherwise
+    DAStudio.error('Simulink:blocks:unhandledFlag', num2str(flag));
+
+end
+
+% end Quadrotor_Plant
+
+function [sys,x0,str,ts,simStateCompliance]=mdlInitializeSizes
+
+sizes = simsizes;
+
+sizes.NumContStates  = 0;
+sizes.NumDiscStates  = 0;
+sizes.NumOutputs     = 9;
+sizes.NumInputs      = 13;
+sizes.DirFeedthrough = 1;
+sizes.NumSampleTimes = 1;   % at least one sample time is needed
+
+sys = simsizes(sizes);
+
+x0  = [];
+
+str = [];
+
+ts  = [0 0];
+
+simStateCompliance = 'UnknownSimState';
+
+% end mdlInitializeSizes
+
+function sys=mdlOutputs(~,~,input,mass,g,x1,x2,y1,y2,zr,rho,fb,kf,km,kd,Ix,Iy,Iz,Ixz)
+% 输入说明�?
+% input(1): 电机1转�?? n1（当前时刻）
+% input(2): 电机2转�?? n2（当前时刻）
+% input(3): 电机3转�?? n3（当前时刻）
+% input(4): 电机4转�?? n4（当前时刻）
+
+% input(5): 机体系�?�度 u（x轴，当前时刻�?
+% input(6): 机体系�?�度 v（y轴，当前时刻�?
+% input(7): 机体系�?�度 w（z轴，当前时刻�?
+
+% input(8): 角�?�度 p（机体x轴，当前时刻�?
+% input(9): 角�?�度 q（机体y轴，当前时刻�?
+% input(10): 角�?�度 r（机体z轴，当前时刻�?
+
+% input(11): 滚转�? phi（当前时刻）
+% input(12): 俯仰�? theta（当前时刻）
+% input(13): 偏航�? psi（当前时刻）
+
+% 输出说明�?
+% sys(1): 加�?�度 a_xa（气动轴系x，当前时刻）
+% sys(2): 加�?�度 a_ya（气动轴系y，当前时刻）
+% sys(3): 加�?�度 a_za（气动轴系z，当前时刻）
+% sys(4): 角加速度 p_dot（机体系x，对应下�?步的 p�?
+% sys(5): 角加速度 q_dot（机体系y，对应下�?步的 q�?
+% sys(6): 角加速度 r_dot（机体系z，对应下�?步的 r�?
+% sys(7): 姿�?�角速度 phi_dot（NED系x，对应下�?�? phi�?
+% sys(8): 姿�?�角速度 theta_dot（NED系y，对应下�?�? theta�?
+% sys(9): 姿�?�角速度 psi_dot（NED系z，对应下�?�? psi�?
+
+n1 = input(1);
+n2 = input(2);
+n3 = input(3);
+n4 = input(4);
+
+u = input(5);
+v = input(6);
+w = input(7);
+
+p = input(8);
+q = input(9);
+r = input(10);
+
+% 姿�?�欧拉角
+phi = input(11);
+theta = input(12);
+psi = input(13);
+
+v_body = [u;v;w];
+V = sqrt(u^2+v^2+w^2);
+alpha = atan2(w,u);
+beta = asin(v/V);
+
+C_nb = [cos(phi)*cos(psi)     sin(phi)*sin(theta)*cos(psi)-cos(phi)*sin(psi)     cos(phi)*sin(theta)*cos(psi)+sin(phi)*sin(psi);...
+        cos(phi)*sin(psi)     sin(phi)*sin(theta)*sin(psi)+cos(phi)*cos(psi)     cos(phi)*sin(theta)*sin(psi)-sin(phi)*cos(psi);...
+       -sin(theta)            sin(phi)*cos(theta)                                cos(phi)*cos(theta)];
+C_bn = C_nb';
+
+C_ab = [cos(alpha)*cos(beta)    sin(beta)   sin(alpha)*cos(beta);...
+       -cos(alpha)*sin(beta)    cos(beta)  -sin(alpha)*cos(beta);...
+       -sin(alpha)                  0       cos(alpha)];
+
+C_an = C_ab * C_bn;
+C_na = C_an';
+
+v_ned = C_nb * v_body;
+V_ned = sqrt(v_ned(1)^2+v_ned(2)^2+v_ned(3)^2);
+
+% 航迹/航向相关�?
+gamma = -asin(v_ned(3)/V_ned);
+chi = atan2(v_ned(2),v_ned(1));
+mu = asin(C_na(3,2)/cos(gamma));
+
+Mx = kf * y1 * (n1^2 - n2^2) + kf * y2 * (n3^2 - n4^2);
+My = (-kd*zr+kf*x1) * (n1^2 + n2^2) - (kd*zr+kf*x2) * x2 * (n3^2 + n4^2);
+Mz = (km-kd*y1) * (n1^2 - n2^2) - (km+kd*y2) * (n3^2 - n4^2);
+
+% sol_acceleration = [a_xa;a_ya;a_za]
+sol_acceleration = [-1/mass*(kf*sin(alpha)*cos(beta)+kd*cos(alpha)*cos(beta))*(n1^2+n2^2+n3^2+n4^2)-1/(2*mass)*rho*V^2*fb-g*sin(gamma);...
+                     1/mass*(kf*sin(alpha)*cos(beta)+kd*cos(alpha)*sin(beta))*(n1^2+n2^2+n3^2+n4^2)+g*cos(gamma)*sin(mu);...
+                     1/mass*(-kf*cos(alpha)+kd*sin(alpha))*(n1^2+n2^2+n3^2+n4^2)+g*cos(gamma)*cos(mu)];
+
+% 加�?�度模型
+sys(1) = sol_acceleration(1);                       % a_
+sys(2) = sol_acceleration(2);                       % a_
+sys(3) = sol_acceleration(3);                       % a_
+
+% 角加速度（机体系�?
+% 角加速度动力�?
+I = [Ix     0      -Ixz;...
+     0      Iy      0;...
+    -Ixz    0       Iz];
+
+I_inv = inv(I); 
+tau_total = [Mx-(Iz-Iy)*q*r+Ixz*p*q;...
+             My-(Ix-Iz)*p*r-Ixz*(p^2-q^2);...
+             Mz-(Iy-Ix)*p*q-Ixz*q*r];
+
+sol_angular_acceleration = I_inv * tau_total;
+
+sys(4) = sol_angular_acceleration(1);              % p_dot
+sys(5) = sol_angular_acceleration(2);              % q_dot
+sys(6) = sol_angular_acceleration(3);              % r_dot
+
+% Matrix F, angular acceleration to euler attitude velocity
+F_aa_to_av = [1     sin(phi)*tan(theta)     cos(phi)*tan(theta);...
+              0     cos(phi)               -sin(phi);...
+              0     sin(phi)/cos(theta)     cos(phi)/cos(theta)];
+
+sol_attitude_velocity = F_aa_to_av * [p;q;r];
+
+sys(7) = sol_attitude_velocity(1);                % phi_dot
+sys(8) = sol_attitude_velocity(2);                % theta_dot
+sys(9) = sol_attitude_velocity(3);                % psi_dot
+
+% end mdlOutputs    
