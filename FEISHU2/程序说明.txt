@@ -1,6 +1,0 @@
-Quadrotor_v3_towards_v2
-代入了书上的参数，实现了书上的仿真
-
-Quadrotor_v3_towards_v3
-用符合自己认知的参数，实现飞行仿真
-
