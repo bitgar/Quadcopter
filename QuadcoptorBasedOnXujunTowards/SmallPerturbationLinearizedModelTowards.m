@@ -85,7 +85,6 @@ function sys=mdlOutputs(~,~,input,mass,g,x1,x2,y1,y2,zr,rho,fb0,Cfa,kf,km,kd,Ix,
 % input(19): dq                                      （当前时刻）
 % input(20): dr                                      （当前时刻）
 
-
 % sys(1): 加速度dV_dot                               （当前时刻）
 % sys(2): 加速度dalpha_dot                           （当前时刻）
 % sys(3): 加速度dbeta_dot                            （当前时刻）
@@ -101,10 +100,6 @@ dn1 =   input(1);
 dn2 =   input(2);
 dn3 =   input(3);
 dn4 =   input(4);
-% dn1 =   0;
-% dn2 =   0;
-% dn3 =   0;
-% dn4 =   0;
 
 V0 =    input(5);
 theta0 =input(6);
@@ -128,18 +123,13 @@ dr =    input(20);
 control = [dn1;dn2;dn3;dn4];
 
 %% longitudinal dynamics 纵向动力学
-% longitudinal control channel 纵向控制通道
 x_lon = [dV;dalpha;dq;dtheta];
-x_lon_dot = [0;0;0;0];
 
-a_v = -1/mass*(kf*cos(alpha0)-kd*sin(alpha0))*(n10^2+n20^2+n30^2+n40^2);
-% a_v = 1/mass*(kf*cos(alpha0)-kd*sin(alpha0))*(n10^2+n20^2+n30^2+n40^2);
+a_v = 1/mass*(kf*cos(alpha0)-kd*sin(alpha0))*(n10^2+n20^2+n30^2+n40^2);
 a_a = 1/(mass*V0)*(kf*sin(alpha0)+kd*cos(alpha0))*(n10^2+n20^2+n30^2+n40^2);
 
 bv = -2/mass*(kf*sin(alpha0)+kd*cos(alpha0));
 ba = 2/(mass*V0)*(-kf*cos(alpha0)+kd*sin(alpha0));
-% bv =     (-1/mass)*(kf*sin(alpha0)+kd*cos(alpha0));
-% ba = (1/(1*V0))*(-kf*cos(alpha0)+kd*sin(alpha0));
 
 bq1 = 2/Iy*(-kd*zr+kf*x1);
 bq2 = 2/Iy*(-kd*zr-kf*x2);
@@ -162,9 +152,7 @@ dq_dot =            x_lon_dot(3);
 dtheta_dot =        x_lon_dot(4);
 
 %% lateral-directional dynamics 横侧向动力学
-% lateral-directional control channel 横侧向控制通道
 x_lat = [dbeta;dp;dr;dphi];
-x_lat_dot = [0;0;0;0];
 
 bp1 = (2*kf*y1*Iz)/(Ix*Iz-Ixz*Ixz)  +  2*(km-kd*y1)*Ixz/(Ix*Iz-Ixz*Ixz);
 bp2 = (2*kf*y2*Iz)/(Ix*Iz-Ixz*Ixz)  -  2*(km+kd*y2)*Ixz/(Ix*Iz-Ixz*Ixz);
@@ -173,7 +161,7 @@ br2 = (2*kf*y2*Ixz)/(Ix*Iz-Ixz*Ixz) -  2*(km+kd*y2)*Ix/(Ix*Iz-Ixz*Ixz);
 
 a_beta = 1/(mass*V0)*(kf*sin(alpha0)+kd*cos(alpha0))*(n10^2+n20^2+n30^2+n40^2) + g*sin(gamma0)/V0;
 
-A_lat = [a_beta             sin(alpha0)             -cos(alpha0)              g/V0;...
+A_lat = [a_beta             sin(alpha0)             -cos(alpha0)              g*cos(theta0)/V0;...
          0                  0                        0                        0;...
          0                  0                        0                        0;...
          0                  1                        tan(theta0)              0];
@@ -185,7 +173,7 @@ B_lat = [0             0             0              0;...
 
 x_lat_dot = A_lat * x_lat + B_lat * control;
 
-dbeta_dot =            x_lat_dot(1);
+dbeta_dot =         x_lat_dot(1);
 dp_dot =            x_lat_dot(2);
 dr_dot =            x_lat_dot(3);
 dphi_dot =          x_lat_dot(4);     
