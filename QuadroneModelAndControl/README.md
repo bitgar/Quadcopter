@@ -11,7 +11,7 @@
 
 | 文件名 | 类型 | 作用 |
 |--------|------|------|
-| QuadcopterHover.slx | Simulink模型 | 1.建立了四旋翼无人机的动力学模型；2.设计了位置控制器、姿态控制器、姿态角速度控制器；3.设计了扫频模块，可用于模型辨识 |
+| QuadcopterHover.slx | Simulink模型 | 1.建立四旋翼无人机的动力学和运动学模型<br>2.设计了位置控制器、姿态控制器、姿态角速度控制器<br>3.扫频北向位置指令—北向位置响应的传递函数，用于模型辨识<br>4.ident建模传递函数，分母4阶，分子1阶 |
 | DifferentialEquation.m | MATLAB脚本 | 控制律让误差按照差分方程的解收敛 |
 | PlantDynamics.m | S-Function函数 | 建立了无人机动力学模型 |
 | TiltAttitudeAndForceGenerated.m | S-Function函数 | 根据控制律，生成期望的滚转角、俯仰角和拉力指令 |
