@@ -1,4 +1,4 @@
-function [sys,x0,str,ts,simStateCompliance] = angle_computation(t,x,u,flag,mass,g)
+function [sys,x0,str,ts,simStateCompliance] = TiltAttitudeAndForceGenerated(t,x,u,flag,mass,g)
 switch flag
 
   %%%%%%%%%%%%%%%%%%
@@ -65,8 +65,7 @@ function sys=mdlOutputs(~,~,u,mass,g)
 % 小角度线性化模型控制器设计
 R_yaw = [cos(u(4)),-sin(u(4));...
          sin(u(4)),cos(u(4))];
-% R_yaw = [1,0;...
-%          0,1];
+
 matrix_tmp = [0 1;...
              -1 0];
 A_yaw = R_yaw * matrix_tmp;
@@ -83,22 +82,6 @@ exp_pitch = sol(2);
 
 % 拉力
 Force = mass*g - mass*u(3);
-
-%% 限幅
-% angle_xian_roll = 15/180*pi;
-% angle_xian_pitch = 90/180*pi;
-% 
-% if(exp_roll >= angle_xian_roll)
-%     exp_roll = angle_xian_roll;
-% elseif(exp_roll <= -angle_xian_roll)
-%     exp_roll = -angle_xian_roll;
-% end
-% 
-% if(exp_pitch >= angle_xian_pitch)
-%     exp_pitch = angle_xian_pitch;
-% elseif(exp_pitch <= -angle_xian_pitch)
-%     exp_pitch = -angle_xian_pitch;
-% end
 
 %% 输出期望拉力与期望姿态角
 sys(1) = Force;

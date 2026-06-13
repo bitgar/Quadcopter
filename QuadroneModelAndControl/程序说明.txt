@@ -49,7 +49,8 @@ ZZC_quadrotor_sweep_pitch_angle.slx
 扫频建立滚转通道的输入输出模型，见图
 滚转通道传递函数.png
 ---------------------------------------
-名称：ZZC_quadrotor_20251110_v3.slx
+名称：QuadcopterHover.slx
+参考了全权的《多旋翼飞行器设计与控制》
 功能：
 1.建模四旋翼的动力学和运动学模型
 2.设计角速度控制器、姿态角控制器、位置控制器
@@ -60,8 +61,7 @@ ZZC_quadrotor_sweep_pitch_angle.slx
 功能：
 1.建立传递函数：分子2阶，分母5阶
 2.然后将传递函数降阶为：分子1阶，分母4阶
-3.与ZZC_quadrotor_20251110_v3.slx中用ident
-建模成的传递函数基本上一致
+3.与QuadcopterHover.slx中用ident建模成的传递函数基本上一致
 
 
 

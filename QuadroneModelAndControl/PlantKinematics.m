@@ -1,4 +1,4 @@
-function [sys,x0,str,ts,simStateCompliance] = Plant_Kinematics(t,x,u,flag)
+function [sys,x0,str,ts,simStateCompliance] = PlantKinematics(t,x,u,flag)
 switch flag
 
   %%%%%%%%%%%%%%%%%%
