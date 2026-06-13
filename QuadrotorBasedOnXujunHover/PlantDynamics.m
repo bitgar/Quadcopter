@@ -1,4 +1,4 @@
-function [sys,x0,str,ts,simStateCompliance] = PlantDynamics_v3(t,x,input,flag,mass,g,x1,x2,y1,y2,kf,km,Ix,Iy,Iz,Ixz)
+function [sys,x0,str,ts,simStateCompliance] = PlantDynamics(t,x,input,flag,mass,g,x1,x2,y1,y2,kf,km,Ix,Iy,Iz,Ixz)
 switch flag
 
   %%%%%%%%%%%%%%%%%%

@@ -1,4 +1,4 @@
-function [sys,x0,str,ts,simStateCompliance] = ControlAllocator_v2(t,x,u,flag,x1,x2)
+function [sys,x0,str,ts,simStateCompliance] = ControlAllocator(t,x,u,flag,x1,x2)
 switch flag
 
   %%%%%%%%%%%%%%%%%%
