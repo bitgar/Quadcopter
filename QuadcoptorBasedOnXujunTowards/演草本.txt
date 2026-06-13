@@ -1,0 +1,35 @@
+dn1 = input(1);
+dn2 = input(2);
+dn3 = input(3);
+dn4 = input(4);
+
+du = input(5);
+dv = input(6);
+dw = input(7);
+
+dp = input(8);
+dq = input(9);
+dr = input(10);
+
+dphi = input(11);
+dtheta = input(12);
+dpsi = input(13);
+
+--------------------------------------
+sys(1) = dV_dot;
+sys(2) = dalpha_dot;
+sys(3) = dbeta_dot;
+sys(4) = dp_dot;
+sys(5) = dq_dot;
+sys(6) = dr_dot;
+sys(7) = dphi_dot;
+sys(8) = dtheta_dot;
+sys(9) = dpsi_dot;
+
+
+
+
+
+
+
+
